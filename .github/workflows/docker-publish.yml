@@ -1,0 +1,44 @@
+name: people microservice deployment
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+env:
+  DOCKER_USER_NAME: ${{secrets.DOCKER_USER_NAME}}
+  DOCKER_TOKEN: ${{secrets.DOCKER_TOKEN}}
+  PEOPLE: ${{secrets.PEOPLE_REPO_NAME}}
+
+jobs:
+  people-service:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Work Dir
+      run: | 
+        echo $DOCKER_USER_NAME
+        echo $DOCKER_TOKEN
+        echo $PEOPLE_REPO_NAME
+    - name: Docker login
+      run: |
+        docker login -u $DOCKER_USER_NAME -p $DOCKER_TOKEN
+    - name: Build people service docker image
+      run: docker build . --file Dockerfile -t "$DOCKER_USER_NAME/$PEOPLE_REPO_NAME:latest"
+    - name: Push people service docker image
+      run: docker push "$DOCKER_USER_NAME/$PEOPLE_REPO_NAME:latest"
+
+  deploy:
+    needs: [people-service]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: kubectl - Google Cloud GKE cluster.
+      uses: ameydev/gke-kubectl-action@master
+      env:
+        PROJECT_ID: ${{ secrets.PROJECT_ID }}
+        APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+        CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
+        ZONE_NAME: asia-southeast1-a
+      with:
+        args: apply -f deployment/
