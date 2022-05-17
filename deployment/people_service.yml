@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: people-service
+  labels:
+    name: people-service
+    app: demo-abc-app
+
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 5000
+      targetPort: 5000
+  selector:
+    name: people-app-pod
+    app: demo-abc-app
