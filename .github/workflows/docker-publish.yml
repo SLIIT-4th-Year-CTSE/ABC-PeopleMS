@@ -8,7 +8,7 @@ on:
 env:
   DOCKER_USER_NAME: ${{secrets.DOCKER_USER_NAME}}
   DOCKER_TOKEN: ${{secrets.DOCKER_TOKEN}}
-  PEOPLE: ${{secrets.PEOPLE_REPO_NAME}}
+  PEOPLE_REPO_NAME: ${{secrets.PEOPLE_REPO_NAME}}
 
 jobs:
   people-service:
